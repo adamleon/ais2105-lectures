@@ -1,0 +1,13 @@
+{
+  "name": "ais2105-lectures",
+  "private": true,
+  "description": "AIS2105 – Mekatronikk og robotikk",
+  "type": "module",
+  "scripts": {
+    "dev": "lysark dev",
+    "build": "lysark build"
+  },
+  "dependencies": {
+    "lysark": "github:adamleon/lysark#v2.0.0"
+  }
+}

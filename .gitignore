@@ -1,0 +1,5 @@
+node_modules/
+dist/
+# CI publishing output from `lysark site`
+_site/
+lysark-state.json

@@ -1,0 +1,130 @@
+name: Publish lectures
+
+# Builds the lectures that changed and publishes them to GitHub Pages
+# (lysark-v2.md §6, step 1). The HTML is published first; the slower PDFs
+# follow in a second publish, so they never delay this run's fix, and they give
+# way when a newer commit is waiting. A lecture that fails keeps its previous
+# version and the others still publish; the run is then marked failed.
+#
+# To publish again, use "Run workflow" rather than re-running an old run: a
+# re-run of a run that main has moved past refuses to publish older lectures.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one run at a time: a push made while a run is going waits for it
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  html:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Refuse to re-run a run that main has moved past
+        if: github.run_attempt != '1'
+        run: |
+          head=$(git ls-remote "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" "$GITHUB_REF" | cut -f1)
+          test "$head" = "$GITHUB_SHA" || { echo "::error::main has moved on; use Run workflow instead of re-running this run"; exit 1; }
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install Chromium for the offline check
+        run: npx playwright-core install --with-deps chromium
+
+      - name: Build the lectures that changed
+        run: npx lysark site --out _site --live "${{ steps.pages.outputs.base_url }}"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+          name: pages-html-${{ github.run_attempt }}
+      - id: deploy
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: pages-html-${{ github.run_attempt }}
+
+      # hand the site and the build state to the PDF job
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: |
+            _site
+            lysark-state.json
+          retention-days: 1
+
+  pdf:
+    needs: html
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Refuse to re-run a run that main has moved past
+        if: github.run_attempt != '1'
+        run: |
+          head=$(git ls-remote "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" "$GITHUB_REF" | cut -f1)
+          test "$head" = "$GITHUB_SHA" || { echo "::error::main has moved on; use Run workflow instead of re-running this run"; exit 1; }
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+
+      # PDFs are never urgent: skip them when there is nothing to do or a newer
+      # commit is waiting. Skipped lectures keep their old PDF version in
+      # versions.json, so the next run makes them.
+      - id: gate
+        name: Decide whether to make PDFs
+        run: |
+          if [ "$(jq '.pdfTodo | length' lysark-state.json)" = 0 ]; then
+            echo "No lecture needs a PDF."
+          elif [ "$(git ls-remote origin "$GITHUB_REF" | cut -f1)" != "$GITHUB_SHA" ]; then
+            echo "A newer commit is waiting; its run makes the PDFs."
+          else
+            echo "make=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Chromium for the PDFs
+        if: steps.gate.outputs.make == 'true'
+        run: npx playwright-core install --with-deps chromium
+
+      - name: Make PDFs for the rebuilt lectures
+        if: steps.gate.outputs.make == 'true'
+        run: npx lysark site-pdf
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.gate.outputs.make == 'true'
+        with:
+          path: _site
+          name: pages-full-${{ github.run_attempt }}
+      - id: deploy
+        if: steps.gate.outputs.make == 'true'
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: pages-full-${{ github.run_attempt }}
+
+      - name: Fail the run if any lecture failed
+        run: npx lysark site-status

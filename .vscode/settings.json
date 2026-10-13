@@ -1,0 +1,4 @@
+{
+  // npm is blocked in PowerShell on a new Windows PC; Command Prompt runs it
+  "terminal.integrated.defaultProfile.windows": "Command Prompt"
+}
