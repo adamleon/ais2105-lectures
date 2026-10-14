@@ -53,8 +53,8 @@ anchored:
 ## Hva er en konfigurasjon?
 
 En **konfigurasjon** er settet av leddverdier som fastlegger robotens stilling
-entydig – vinkelen på hvert dreieledd og lengden på hvert skyveledd. Vi samler
-dem i én vektor:
+entydig. Vinkelen på hvert dreieledd og lengden på hvert skyveledd. Vi samler
+dem i en vektor:
 
 $$q = (q_1, q_2, \dots, q_n) \in \mathcal{C} \subset \mathbb{R}^n$$
 
