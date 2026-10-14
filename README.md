@@ -17,6 +17,16 @@ lectures that changed and publishes them, each as one HTML file that works offli
 - **From a phone:** open the file on github.com and use the pencil icon.
 - **With a live preview:** see [SETUP.md](SETUP.md).
 
+## Images
+
+Put images in the lecture's folder, for example `lectures/baneplanlegging/images/`, and use them
+in `slides.md` the normal Markdown way: `![Robot cell](images/cell.png)`. Paths are relative to
+`slides.md`; images shared by several lectures can go in `assets/` (`../../assets/kuka.png`).
+The build copies every image into the lecture file, so it still works offline. A missing image
+or a web address stops the build with a message naming the slide. (Needs engine v2.1.0.)
+
+## When something breaks
+
 A commit that breaks a lecture doesn't take it down: that lecture keeps its previous version,
 the other lectures still publish, and the run is marked with a red ✗ in the Actions tab. To
 publish again without a new commit, use **Run workflow** on "Publish lectures" in the Actions
