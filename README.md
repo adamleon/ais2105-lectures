@@ -20,7 +20,7 @@ lectures that changed and publishes them, each as one HTML file that works offli
   click **Load** when asked about the course's site). The panel beside the text shows the lecture,
   follows the cursor, and updates when you press Ctrl+S. To set a 3D camera view, move the camera
   with the mouse, click in it and press V (or click the panel's camera button); the view is written
-  into that slide's `camera:`. (Needs engine v2.3.0.)
+  into that slide's `camera:`. (Needs engine v2.3.1.)
 - **With a live preview from a clone:** see [SETUP.md](SETUP.md).
 
 ## Images
