@@ -15,7 +15,12 @@ lectures that changed and publishes them, each as one HTML file that works offli
   about two minutes later; press F5 in the lecture tab to see it. The address keeps the slide
   number, so you stay on the same slide.
 - **From a phone:** open the file on github.com and use the pencil icon.
-- **With a live preview:** see [SETUP.md](SETUP.md).
+- **With the Lysark extension (github.dev or VS Code):** accept the offer to install it when the
+  repo opens, open a lecture's `slides.md`, and click ▷ in the editor's title bar. The panel
+  beside the text shows the lecture, follows the cursor, and updates when you save. To set a 3D
+  camera view, move the camera with the mouse and press V in the panel (or click its camera
+  button); the view is written into that slide's `camera:`. (Needs engine v2.2.0.)
+- **With a live preview from a clone:** see [SETUP.md](SETUP.md).
 
 ## Images
 

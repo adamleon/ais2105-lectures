@@ -2,6 +2,7 @@
   "name": "ais2105-lectures",
   "private": true,
   "description": "AIS2105 – Mekatronikk og robotikk",
+  "homepage": "https://adamleon.github.io/ais2105-lectures/",
   "type": "module",
   "scripts": {
     "dev": "lysark dev",
