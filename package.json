@@ -9,6 +9,6 @@
     "build": "lysark build"
   },
   "dependencies": {
-    "lysark": "github:adamleon/lysark#v2.5.0"
+    "lysark": "github:adamleon/lysark#v2.5.1"
   }
 }
